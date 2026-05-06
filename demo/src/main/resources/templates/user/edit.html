@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit User | Car Rental System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; }
+        .sidebar { min-height: calc(100vh - 56px); background: #fff; border-right: 1px solid #dee2e6; }
+        .sidebar .nav-link { color: #495057; border-radius: 6px; margin: 2px 8px; }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active { background-color: #0d6efd; color: #fff; }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-dark bg-primary px-3">
+    <a class="navbar-brand fw-bold" href="/"><i class="bi bi-car-front-fill me-2"></i>Car Rental System</a>
+    <span class="text-white-50 small">SE1020 OOP Project</span>
+</nav>
+<div class="container-fluid">
+    <div class="row">
+        <nav class="col-md-2 sidebar py-3">
+            <ul class="nav flex-column">
+                <li><a class="nav-link" href="/"><i class="bi bi-house-door me-2"></i>Dashboard</a></li>
+                <hr class="my-2">
+                <li><small class="text-muted px-3 fw-bold">MANAGEMENT</small></li>
+                <li><a class="nav-link" href="/vehicles"><i class="bi bi-car-front me-2"></i>Vehicles</a></li>
+                <li><a class="nav-link active" href="/users"><i class="bi bi-people me-2"></i>Users</a></li>
+                <li><a class="nav-link" href="/bookings"><i class="bi bi-calendar-check me-2"></i>Bookings</a></li>
+                <li><a class="nav-link" href="/payments"><i class="bi bi-credit-card me-2"></i>Payments</a></li>
+                <li><a class="nav-link" href="/returns"><i class="bi bi-arrow-return-left me-2"></i>Returns</a></li>
+                <li><a class="nav-link" href="/insurance"><i class="bi bi-shield-check me-2"></i>Insurance</a></li>
+            </ul>
+        </nav>
+        <main class="col-md-10 p-4">
+            <div class="mb-4">
+                <a href="/users" class="text-decoration-none text-muted small">
+                    <i class="bi bi-arrow-left me-1"></i>Back to Users
+                </a>
+                <h4 class="fw-bold mt-1 mb-0">Edit User</h4>
+                <small class="text-muted">Update user details below</small>
+            </div>
+            <div class="card shadow-sm" style="max-width: 700px;">
+                <div class="card-body p-4">
+                    <form method="post" action="/users/edit">
+                        <input type="hidden" name="index" th:value="${index}">
+                        <input type="hidden" name="userId" th:value="${user.userId}">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Username</label>
+                                <input type="text" name="username" class="form-control" th:value="${user.username}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Password</label>
+                                <input type="password" name="password" class="form-control" th:value="${user.password}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Full Name</label>
+                                <input type="text" name="fullName" class="form-control" th:value="${user.fullName}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Email</label>
+                                <input type="email" name="email" class="form-control" th:value="${user.email}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Phone</label>
+                                <input type="text" name="phone" class="form-control" th:value="${user.phone}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">License Number</label>
+                                <input type="text" name="licenseNumber" class="form-control" th:value="${user.licenseNumber}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">User Type</label>
+                                <select name="userType" class="form-select" required>
+                                    <option value="Individual" th:selected="${user.userType == 'Individual'}">Individual</option>
+                                    <option value="Corporate"  th:selected="${user.userType == 'Corporate'}">Corporate</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mt-4 d-flex gap-2">
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-check-lg me-1"></i>Save Changes
+                            </button>
+                            <a href="/users" class="btn btn-outline-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
