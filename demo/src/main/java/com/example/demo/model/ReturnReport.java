@@ -1,3 +1,5 @@
+
+// Member 05 - Rental Return and Damage Reports | IT25101250
 package com.example.demo.model;
 
 public class ReturnReport {
