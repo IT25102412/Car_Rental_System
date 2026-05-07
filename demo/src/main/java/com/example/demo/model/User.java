@@ -1,3 +1,5 @@
+// Member 02 - User and Driver Management | IT25103032
+
 package com.example.demo.model;
 
 public class User {
