@@ -61,5 +61,6 @@ public class BookingController {
     public String deleteBooking(@PathVariable String id) {
         bookingService.deleteBooking(bookingService.getIndexById(id));
         return "redirect:/bookings";
+        
     }
 }
