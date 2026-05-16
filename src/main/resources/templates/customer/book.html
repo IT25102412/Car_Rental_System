@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Book Car | Car Rental</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body { background-color: #f0f4ff; }
+        .topbar { background: linear-gradient(135deg, #1a1a2e, #0f3460); }
+        .car-summary { background: linear-gradient(135deg, #0d6efd, #0dcaf0); border-radius: 16px; color: white; }
+    </style>
+</head>
+<body>
+<nav class="topbar navbar px-4 py-3">
+    <a class="navbar-brand text-white fw-bold" href="/customer/home">
+        <i class="bi bi-car-front-fill me-2"></i>DriveEasy
+    </a>
+    <div class="d-flex align-items-center gap-3">
+        <a href="/customer/cars" class="text-white text-decoration-none small">Browse Cars</a>
+        <a href="/customer/mybookings" class="text-white text-decoration-none small">My Bookings</a>
+        <a href="/customer/profile" class="text-white text-decoration-none small">Profile</a>
+        <a href="/logout" class="btn btn-outline-light btn-sm">Logout</a>
+    </div>
+</nav>
+
+<div class="container py-4" style="max-width: 680px;">
+    <a href="/customer/cars" class="text-decoration-none text-muted small mb-3 d-inline-block">
+        <i class="bi bi-arrow-left me-1"></i>Back to Cars
+    </a>
+
+    <!-- Car summary card -->
+    <div class="car-summary p-4 mb-4">
+        <div class="d-flex align-items-center gap-3">
+            <div style="width:60px;height:60px;background:rgba(255,255,255,0.2);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.8rem;">
+                <i class="bi bi-car-front"></i>
+            </div>
+            <div>
+                <h5 class="fw-bold mb-0" th:text="${vehicle.make} + ' ' + ${vehicle.model}"></h5>
+                <span th:text="${vehicle.category}"></span> &bull;
+                <span th:text="${vehicle.licensePlate}"></span>
+            </div>
+            <div class="ms-auto text-end">
+                <div class="fs-4 fw-bold" th:text="'$' + ${vehicle.dailyRate}"></div>
+                <small>per day</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error -->
+    <div th:if="${error}" class="alert alert-danger mb-3" th:text="${error}"></div>
+
+    <!-- Booking form -->
+    <div class="card border-0 shadow-sm rounded-4 p-4">
+        <h5 class="fw-bold mb-4">Select your dates</h5>
+        <form method="post" action="/customer/book">
+            <input type="hidden" name="vehicleId" th:value="${vehicle.vehicleId}">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Pick-up Date</label>
+                    <input type="date" name="startDate" class="form-control form-control-lg"
+                           th:min="${today}" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Return Date</label>
+                    <input type="date" name="endDate" class="form-control form-control-lg"
+                           th:min="${today}" required>
+                </div>
+            </div>
+            <div class="alert alert-info mt-3 small">
+                <i class="bi bi-info-circle me-1"></i>
+                Daily rate: <strong th:text="'$' + ${vehicle.dailyRate}"></strong> per day.
+                Total will be calculated at payment.
+            </div>
+            <div class="d-flex gap-2 mt-3">
+                <button type="submit" class="btn btn-primary px-4">
+                    <i class="bi bi-calendar-check me-1"></i>Confirm Booking
+                </button>
+                <a href="/customer/cars" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
