@@ -14,6 +14,8 @@ public class ReturnService {
 
     public void addReturn(ReturnReport r) {
         r.setReturnId(FileUtil.generateId(FILE, "RET"));
+        // Auto calculate fine before saving
+        r.setLateFine(r.calculateFine());
         FileUtil.appendLine(FILE, r.toFileString());
     }
 
@@ -34,6 +36,7 @@ public class ReturnService {
     }
 
     public boolean updateReturn(int index, ReturnReport updated) {
+        updated.setLateFine(updated.calculateFine());
         return FileUtil.updateLine(FILE, index, updated.toFileString());
     }
 

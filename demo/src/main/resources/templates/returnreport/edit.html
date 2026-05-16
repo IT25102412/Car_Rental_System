@@ -10,6 +10,7 @@
         .sidebar { min-height: calc(100vh - 56px); background: #fff; border-right: 1px solid #dee2e6; }
         .sidebar .nav-link { color: #495057; border-radius: 6px; margin: 2px 8px; }
         .sidebar .nav-link:hover, .sidebar .nav-link.active { background-color: #0d6efd; color: #fff; }
+        .fine-box { background: #fff3cd; border: 1px solid #ffc107; border-radius: 10px; padding: 1rem; }
     </style>
 </head>
 <body>
@@ -38,7 +39,7 @@
                     <i class="bi bi-arrow-left me-1"></i>Back to Returns
                 </a>
                 <h4 class="fw-bold mt-1 mb-0">Edit Return Report</h4>
-                <small class="text-muted">Update return status or fine amount</small>
+                <small class="text-muted">Update return status and recalculate fine</small>
             </div>
             <div class="card shadow-sm" style="max-width: 700px;">
                 <div class="card-body p-4">
@@ -59,8 +60,35 @@
                                 <input type="text" name="userId" class="form-control" th:value="${returnReport.userId}" required>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label fw-semibold">Return Date</label>
-                                <input type="date" name="returnDate" class="form-control" th:value="${returnReport.returnDate}" required>
+                                <label class="form-label fw-semibold">Member Type</label>
+                                <select name="memberType" class="form-select" id="memberType" required>
+                                    <option value="Regular" th:selected="${returnReport.memberType == 'Regular'}">Regular (Rs. 625/late day)</option>
+                                    <option value="Premium" th:selected="${returnReport.memberType == 'Premium'}">Premium (Rs. 250/late day)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Expected Return Date</label>
+                                <input type="date" name="expectedDate" class="form-control" id="expectedDate" th:value="${returnReport.expectedDate}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Actual Return Date</label>
+                                <input type="date" name="returnDate" class="form-control" id="returnDate" th:value="${returnReport.returnDate}" required>
+                            </div>
+                            <div class="col-12">
+                                <div class="fine-box">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <div>
+                                            <i class="bi bi-calculator me-2 text-warning"></i>
+                                            <strong>Late Fee Calculator</strong>
+                                            <div class="small text-muted mt-1" id="fineDetails">Change dates to recalculate</div>
+                                        </div>
+                                        <div class="text-end">
+                                            <div class="fs-4 fw-bold text-danger" id="fineAmount" th:text="'Rs. ' + ${returnReport.lateFine}">Rs. 0.00</div>
+                                            <small class="text-muted">calculated fine</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <input type="hidden" name="lateFine" id="lateFine" th:value="${returnReport.lateFine}">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold">Vehicle Condition</label>
@@ -69,18 +97,6 @@
                                     <option value="Damaged"  th:selected="${returnReport.condition == 'Damaged'}">Damaged</option>
                                     <option value="Totalled" th:selected="${returnReport.condition == 'Totalled'}">Totalled</option>
                                 </select>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-semibold">Member Type</label>
-                                <select name="memberType" class="form-select" required>
-                                    <option value="Regular" th:selected="${returnReport.memberType == 'Regular'}">Regular</option>
-                                    <option value="Premium" th:selected="${returnReport.memberType == 'Premium'}">Premium</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-semibold">Late Fine ($)</label>
-                                <input type="number" name="lateFine" class="form-control"
-                                       th:value="${returnReport.lateFine}" step="0.01" min="0" required>
                             </div>
                             <div class="col-12">
                                 <label class="form-label fw-semibold">Notes</label>
@@ -101,5 +117,37 @@
     </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function calculateFine() {
+        const expectedDate = document.getElementById('expectedDate').value;
+        const returnDate = document.getElementById('returnDate').value;
+        const memberType = document.getElementById('memberType').value;
+
+        if (expectedDate && returnDate) {
+            const expected = new Date(expectedDate);
+            const returned = new Date(returnDate);
+            const diffMs = returned - expected;
+            const lateDays = Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
+            const ratePerDay = memberType === 'Premium' ? 250 : 625;
+            const fine = lateDays * ratePerDay;
+
+            document.getElementById('fineAmount').textContent = 'Rs. ' + fine.toFixed(2);
+            document.getElementById('lateFine').value = fine;
+
+            if (lateDays === 0) {
+                document.getElementById('fineDetails').textContent = 'Returned on time — no fine!';
+                document.getElementById('fineAmount').className = 'fs-4 fw-bold text-success';
+            } else {
+                document.getElementById('fineDetails').textContent =
+                    lateDays + ' day(s) late × Rs. ' + ratePerDay + '/day (' + memberType + ' member)';
+                document.getElementById('fineAmount').className = 'fs-4 fw-bold text-danger';
+            }
+        }
+    }
+
+    document.getElementById('expectedDate').addEventListener('change', calculateFine);
+    document.getElementById('returnDate').addEventListener('change', calculateFine);
+    document.getElementById('memberType').addEventListener('change', calculateFine);
+</script>
 </body>
 </html>

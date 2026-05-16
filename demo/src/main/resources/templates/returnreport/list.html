@@ -51,6 +51,7 @@
                             <th>Booking ID</th>
                             <th>Vehicle ID</th>
                             <th>User ID</th>
+                            <th>Expected Date</th>
                             <th>Return Date</th>
                             <th>Condition</th>
                             <th>Late Fine</th>
@@ -65,13 +66,18 @@
                             <td th:text="${r.bookingId}"></td>
                             <td th:text="${r.vehicleId}"></td>
                             <td th:text="${r.userId}"></td>
+                            <td th:text="${r.expectedDate}"></td>
                             <td th:text="${r.returnDate}"></td>
                             <td>
                                     <span class="badge"
                                           th:classappend="${r.condition == 'Good'} ? 'bg-success' : (${r.condition == 'Damaged'} ? 'bg-warning text-dark' : 'bg-danger')"
                                           th:text="${r.condition}"></span>
                             </td>
-                            <td th:text="'$' + ${r.lateFine}"></td>
+                            <td>
+                                    <span class="fw-bold"
+                                          th:classappend="${r.lateFine > 0} ? 'text-danger' : 'text-success'"
+                                          th:text="'Rs. ' + ${r.lateFine}"></span>
+                            </td>
                             <td>
                                     <span class="badge"
                                           th:classappend="${r.memberType == 'Premium'} ? 'bg-primary' : 'bg-secondary'"
@@ -91,7 +97,7 @@
                             </td>
                         </tr>
                         <tr th:if="${#lists.isEmpty(returns)}">
-                            <td colspan="10" class="text-center text-muted py-4">
+                            <td colspan="11" class="text-center text-muted py-4">
                                 No return reports found. <a href="/returns/add">Log one now</a>.
                             </td>
                         </tr>

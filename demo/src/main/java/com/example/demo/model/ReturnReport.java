@@ -1,6 +1,8 @@
-
 // Member 05 - Rental Return and Damage Reports | IT25101250
 package com.example.demo.model;
+
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 
 public class ReturnReport {
 
@@ -9,45 +11,55 @@ public class ReturnReport {
     private String vehicleId;
     private String userId;
     private String returnDate;
-    private String condition;   // Good, Damaged, Totalled
+    private String expectedDate;
+    private String condition;
     private double lateFine;
-    private String memberType;  // Regular, Premium
+    private String memberType;
     private String notes;
 
     public ReturnReport() {}
 
     public ReturnReport(String returnId, String bookingId, String vehicleId,
-                        String userId, String returnDate, String condition,
-                        double lateFine, String memberType, String notes) {
-        this.returnId   = returnId;
-        this.bookingId  = bookingId;
-        this.vehicleId  = vehicleId;
-        this.userId     = userId;
-        this.returnDate = returnDate;
-        this.condition  = condition;
-        this.lateFine   = lateFine;
-        this.memberType = memberType;
-        this.notes      = notes;
+                        String userId, String returnDate, String expectedDate,
+                        String condition, double lateFine, String memberType, String notes) {
+        this.returnId    = returnId;
+        this.bookingId   = bookingId;
+        this.vehicleId   = vehicleId;
+        this.userId      = userId;
+        this.returnDate  = returnDate;
+        this.expectedDate = expectedDate;
+        this.condition   = condition;
+        this.lateFine    = lateFine;
+        this.memberType  = memberType;
+        this.notes       = notes;
     }
 
     // Polymorphism: fine differs for Regular vs Premium members
-    public double calculateFine(int lateDays) {
-        if ("Premium".equalsIgnoreCase(memberType)) {
-            return lateDays * 10.0;  // $10/day for premium
+    public double calculateFine() {
+        try {
+            LocalDate returnD   = LocalDate.parse(returnDate);
+            LocalDate expectedD = LocalDate.parse(expectedDate);
+            long lateDays = ChronoUnit.DAYS.between(expectedD, returnD);
+            if (lateDays <= 0) return 0.0;
+            if ("Premium".equalsIgnoreCase(memberType)) {
+                return lateDays * 250.0;
+            }
+            return lateDays * 625.0;
+        } catch (Exception e) {
+            return 0.0;
         }
-        return lateDays * 25.0;      // $25/day for regular
     }
 
     public String toFileString() {
         return returnId + "," + bookingId + "," + vehicleId + "," +
-                userId + "," + returnDate + "," + condition + "," +
-                lateFine + "," + memberType + "," + notes;
+                userId + "," + returnDate + "," + expectedDate + "," +
+                condition + "," + lateFine + "," + memberType + "," + notes;
     }
 
     public static ReturnReport fromFileString(String line) {
-        String[] p = line.split(",", 9);
+        String[] p = line.split(",", 10);
         return new ReturnReport(p[0], p[1], p[2], p[3], p[4], p[5],
-                Double.parseDouble(p[6]), p[7], p[8]);
+                p[6], Double.parseDouble(p[7]), p[8], p[9]);
     }
 
     public String getReturnId()                  { return returnId; }
@@ -64,6 +76,9 @@ public class ReturnReport {
 
     public String getReturnDate()                  { return returnDate; }
     public void setReturnDate(String returnDate)   { this.returnDate = returnDate; }
+
+    public String getExpectedDate()                    { return expectedDate; }
+    public void setExpectedDate(String expectedDate)   { this.expectedDate = expectedDate; }
 
     public String getCondition()                 { return condition; }
     public void setCondition(String condition)   { this.condition = condition; }
