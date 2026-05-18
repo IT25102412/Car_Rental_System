@@ -23,6 +23,7 @@ public class CustomerController {
     @Autowired private VehicleService vehicleService;
     @Autowired private BookingService bookingService;
     @Autowired private UserService userService;
+    @Autowired private com.example.demo.service.PaymentService paymentService;
 
     // Check if customer is logged in
     private boolean isCustomer(HttpSession session) {
@@ -51,7 +52,6 @@ public class CustomerController {
         } else {
             cars = vehicleService.getAllVehicles();
         }
-        // Only show available cars to customers
         cars = cars.stream()
                 .filter(v -> v.getStatus().equals("Available"))
                 .collect(Collectors.toList());
@@ -98,10 +98,10 @@ public class CustomerController {
         booking.setVehicleId(vehicleId);
         booking.setStartDate(startDate);
         booking.setEndDate(endDate);
-        booking.setStatus("Confirmed");
+        booking.setStatus("Pending");
         bookingService.addBooking(booking);
 
-        return "redirect:/customer/mybookings";
+        return "redirect:/customer/mybookings?booked=true";
     }
 
     // My bookings
@@ -138,5 +138,82 @@ public class CustomerController {
         user.setUserId(userId);
         userService.updateUser(index, user);
         return "redirect:/customer/profile";
+    }
+
+    // Show payment page — only if booking is Confirmed
+    @GetMapping("/payment/{bookingId}")
+    public String showPayment(@PathVariable String bookingId,
+                              HttpSession session, Model model) {
+        if (!isCustomer(session)) return "redirect:/login";
+
+        Booking booking = bookingService.findById(bookingId);
+
+        if (booking.getStatus().equals("Pending")) {
+            return "redirect:/customer/mybookings?error=pending";
+        }
+        if (booking.getStatus().equals("Rejected")) {
+            return "redirect:/customer/mybookings?error=rejected";
+        }
+
+        Vehicle vehicle = vehicleService.findById(booking.getVehicleId());
+
+        java.time.LocalDate start = java.time.LocalDate.parse(booking.getStartDate());
+        java.time.LocalDate end   = java.time.LocalDate.parse(booking.getEndDate());
+        long days = java.time.temporal.ChronoUnit.DAYS.between(start, end);
+        if (days < 1) days = 1;
+        double total = days * vehicle.getDailyRate();
+
+        model.addAttribute("booking", booking);
+        model.addAttribute("vehicle", vehicle);
+        model.addAttribute("days", days);
+        model.addAttribute("total", total);
+        model.addAttribute("username", session.getAttribute("username"));
+        return "customer/payment";
+    }
+
+    // Handle payment submission
+    @PostMapping("/payment")
+    public String processPayment(@RequestParam String bookingId,
+                                 @RequestParam String cardName,
+                                 @RequestParam String cardNumber,
+                                 @RequestParam String expiry,
+                                 @RequestParam String cvv,
+                                 HttpSession session) {
+        if (!isCustomer(session)) return "redirect:/login";
+
+        Booking booking = bookingService.findById(bookingId);
+        Vehicle vehicle = vehicleService.findById(booking.getVehicleId());
+
+        java.time.LocalDate start = java.time.LocalDate.parse(booking.getStartDate());
+        java.time.LocalDate end   = java.time.LocalDate.parse(booking.getEndDate());
+        long days = java.time.temporal.ChronoUnit.DAYS.between(start, end);
+        if (days < 1) days = 1;
+        double total = days * vehicle.getDailyRate();
+
+        com.example.demo.model.Payment payment = new com.example.demo.model.Payment();
+        payment.setUserId(booking.getUserId());
+        payment.setVehicleId(booking.getVehicleId());
+        payment.setRentalType("Daily");
+        payment.setRentalDays((int) days);
+        payment.setRatePerDay(vehicle.getDailyRate());
+        payment.setTotalAmount(total);
+        payment.setStatus("Paid");
+        payment.setPaymentDate(java.time.LocalDate.now().toString());
+        paymentService.addPayment(payment);
+
+        return "redirect:/customer/payment-success?bookingId=" + bookingId + "&total=" + total;
+    }
+
+    // Payment success page
+    @GetMapping("/payment-success")
+    public String paymentSuccess(@RequestParam String bookingId,
+                                 @RequestParam double total,
+                                 HttpSession session, Model model) {
+        if (!isCustomer(session)) return "redirect:/login";
+        Booking booking = bookingService.findById(bookingId);
+        model.addAttribute("booking", booking);
+        model.addAttribute("total", total);
+        model.addAttribute("username", session.getAttribute("username"));
+        return "customer/payment-success";
     }
 }

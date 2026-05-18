@@ -8,9 +8,9 @@ public class IndividualDriver extends User {
 
     public IndividualDriver(String userId, String username, String password,
                             String fullName, String email, String phone,
-                            String licenseNumber, String address) {
+                            String nicOrPassport, String address) {
         super(userId, username, password, fullName, email, phone,
-                licenseNumber, "Individual");
+                nicOrPassport, "Individual", "default", "default");
         this.address = address;
     }
 

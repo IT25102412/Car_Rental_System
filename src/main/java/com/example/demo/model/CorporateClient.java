@@ -8,9 +8,9 @@ public class CorporateClient extends User {
 
     public CorporateClient(String userId, String username, String password,
                            String fullName, String email, String phone,
-                           String licenseNumber, String companyName) {
+                           String nicOrPassport, String companyName) {
         super(userId, username, password, fullName, email, phone,
-                licenseNumber, "Corporate");
+                nicOrPassport, "Corporate", "default", "default");
         this.companyName = companyName;
     }
 
