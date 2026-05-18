@@ -1,2 +1,0 @@
-USR001,johon123,mihil1234,hojom nameas,johon123@gmail.com,0756579294,DL - 1234,Individual
-USR002,himesh123,himesh123,mihil himesh,ghmr.himesher@gmail.com,0756579294,DL - 1234,Individual
