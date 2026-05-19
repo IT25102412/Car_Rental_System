@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Payment | Car Rental</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body { background-color: #f0f4ff; }
+        .topbar { background: linear-gradient(135deg, #1a1a2e, #0f3460); }
+        .card-preview {
+            background: linear-gradient(135deg, #1a1a2e, #0f3460);
+            border-radius: 16px; color: white;
+            padding: 1.5rem; font-family: monospace;
+            min-height: 160px; position: relative;
+        }
+        .card-chip {
+            width: 40px; height: 30px;
+            background: linear-gradient(135deg, #f0c040, #c09000);
+            border-radius: 6px; margin-bottom: 1rem;
+        }
+        .order-summary { background: #f8f9ff; border-radius: 12px; }
+        .form-control:focus { border-color: #0d6efd; box-shadow: 0 0 0 3px rgba(13,110,253,0.15); }
+        .pay-btn {
+            background: linear-gradient(135deg, #0d6efd, #0dcaf0);
+            border: none; border-radius: 10px;
+            padding: 0.85rem; font-weight: 600;
+            font-size: 1rem; color: white; width: 100%;
+            transition: opacity 0.2s;
+        }
+        .pay-btn:hover { opacity: 0.9; color: white; }
+    </style>
+</head>
+<body>
+<nav class="topbar navbar px-4 py-3">
+    <a class="navbar-brand text-white fw-bold" href="/customer/home">
+        <i class="bi bi-car-front-fill me-2"></i>DriveEasy
+    </a>
+    <div class="d-flex align-items-center gap-3">
+        <a href="/customer/cars" class="text-white text-decoration-none small">Browse Cars</a>
+        <a href="/customer/mybookings" class="text-white text-decoration-none small">My Bookings</a>
+        <a href="/customer/profile" class="text-white text-decoration-none small">Profile</a>
+        <a href="/logout" class="btn btn-outline-light btn-sm">Logout</a>
+    </div>
+</nav>
+
+<div class="container py-4" style="max-width: 900px;">
+    <a href="/customer/mybookings" class="text-decoration-none text-muted small mb-3 d-inline-block">
+        <i class="bi bi-arrow-left me-1"></i>Back to My Bookings
+    </a>
+    <h4 class="fw-bold mb-4">Complete Payment</h4>
+
+    <div class="row g-4">
+        <!-- Payment Form -->
+        <div class="col-md-7">
+            <div class="card border-0 shadow-sm rounded-4 p-4">
+                <h6 class="fw-bold mb-4"><i class="bi bi-credit-card me-2 text-primary"></i>Card Details</h6>
+
+                <!-- Card Preview -->
+                <div class="card-preview mb-4">
+                    <div class="card-chip"></div>
+                    <div class="fs-5 letter-spacing mb-2" id="cardPreview">•••• •••• •••• ••••</div>
+                    <div class="d-flex justify-content-between">
+                        <span id="namePreview" style="font-size:0.85rem;">YOUR NAME</span>
+                        <span id="expiryPreview" style="font-size:0.85rem;">MM/YY</span>
+                    </div>
+                    <div style="position:absolute;top:1.2rem;right:1.2rem;font-size:1.5rem;opacity:0.6;">
+                        <i class="bi bi-credit-card-2-front"></i>
+                    </div>
+                </div>
+
+                <form method="post" action="/customer/payment">
+                    <input type="hidden" name="bookingId" th:value="${booking.bookingId}">
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Cardholder Name</label>
+                        <input type="text" name="cardName" class="form-control"
+                               placeholder="e.g. John Smith"
+                               oninput="document.getElementById('namePreview').textContent = this.value.toUpperCase() || 'YOUR NAME'"
+                               required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Card Number</label>
+                        <input type="text" name="cardNumber" class="form-control"
+                               placeholder="1234 5678 9012 3456"
+                               maxlength="19"
+                               oninput="formatCard(this)"
+                               required>
+                    </div>
+                    <div class="row g-3 mb-4">
+                        <div class="col-6">
+                            <label class="form-label fw-semibold">Expiry Date</label>
+                            <input type="text" name="expiry" class="form-control"
+                                   placeholder="MM/YY" maxlength="5"
+                                   oninput="document.getElementById('expiryPreview').textContent = this.value || 'MM/YY'"
+                                   required>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label fw-semibold">CVV</label>
+                            <input type="password" name="cvv" class="form-control"
+                                   placeholder="•••" maxlength="3" required>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info small mb-3">
+                        <i class="bi bi-shield-lock me-1"></i>
+                        This is a <strong>demo payment</strong> — no real money will be charged.
+                        Use any card number for testing.
+                    </div>
+
+                    <button type="submit" class="pay-btn">
+                        <i class="bi bi-lock-fill me-2"></i>Pay LKR <span th:text="${total}"></span>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Order Summary -->
+        <div class="col-md-5">
+            <div class="card border-0 shadow-sm rounded-4 p-4">
+                <h6 class="fw-bold mb-3"><i class="bi bi-receipt me-2 text-primary"></i>Order Summary</h6>
+                <div class="order-summary p-3 mb-3">
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <div style="width:44px;height:44px;background:#e8f0ff;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#0d6efd;font-size:1.2rem;">
+                            <i class="bi bi-car-front"></i>
+                        </div>
+                        <div>
+                            <div class="fw-bold small" th:text="${vehicle.make} + ' ' + ${vehicle.model}"></div>
+                            <div class="text-muted" style="font-size:0.8rem;" th:text="${vehicle.category}"></div>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between small mb-1">
+                        <span class="text-muted">Booking ID</span>
+                        <span class="fw-semibold" th:text="${booking.bookingId}"></span>
+                    </div>
+                    <div class="d-flex justify-content-between small mb-1">
+                        <span class="text-muted">Pick-up</span>
+                        <span th:text="${booking.startDate}"></span>
+                    </div>
+                    <div class="d-flex justify-content-between small mb-1">
+                        <span class="text-muted">Return</span>
+                        <span th:text="${booking.endDate}"></span>
+                    </div>
+                    <div class="d-flex justify-content-between small mb-1">
+                        <span class="text-muted">Duration</span>
+                        <span th:text="${days} + ' day(s)'"></span>
+                    </div>
+                    <div class="d-flex justify-content-between small">
+                        <span class="text-muted">Rate</span>
+                        <span th:text="'LKR ' + ${vehicle.dailyRate} + '/day'"></span>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-between fw-bold fs-5 border-top pt-3">
+                    <span>Total</span>
+                    <span class="text-primary" th:text="'LKR ' + ${total}"></span>
+                </div>
+                <div class="mt-3 text-muted" style="font-size:0.78rem;">
+                    <i class="bi bi-shield-check me-1 text-success"></i>Secure demo payment
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function formatCard(input) {
+        let val = input.value.replace(/\D/g, '').substring(0, 16);
+        let formatted = val.match(/.{1,4}/g)?.join(' ') || val;
+        input.value = formatted;
+        let preview = val.padEnd(16, '•').match(/.{1,4}/g).join(' ');
+        document.getElementById('cardPreview').textContent = preview;
+    }
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
