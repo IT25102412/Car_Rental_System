@@ -15,6 +15,7 @@ public class UserService {
     public void addUser(User u) {
         u.setUserId(FileUtil.generateId(FILE, "USR"));
         FileUtil.appendLine(FILE, u.toFileString());
+
     }
 
     public List<User> getAllUsers() {
