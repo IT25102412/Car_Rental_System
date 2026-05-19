@@ -42,6 +42,7 @@ public class UserController {
     public String addUser(@ModelAttribute User user) {
         userService.addUser(user);
         return "redirect:/users";
+
     }
 
     @GetMapping("/edit/{id}")
