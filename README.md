@@ -9,11 +9,11 @@ A web-based Car Rental Management System developed as a group project for **SE10
 | Member | Student ID | Module |
 |--------|-----------|--------|
 | Member 01 | IT25102412 | Vehicle Inventory Management |
-| Member 02 | IT25101998 | User & Driver Management |
-| Member 03 | IT25103032 | Payment & Billing Management |
-| Member 04 | IT25102317 | Booking & Reservation Management |
+| Member 02 | IT25103032 | User & Driver Management |
+| Member 03 | IT25102317 | Payment & Billing Management |
+| Member 04 | IT25101998 | Booking & Reservation Management |
 | Member 05 | IT25101250 | Rental Return & Damage Reports |
-| Member 06 | IT25XXXXXX | Insurance & Policy Management |
+| Member 06 | IT25102732 | Insurance & Policy Management |
 
 ---
 
