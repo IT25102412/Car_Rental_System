@@ -33,6 +33,7 @@ public class User {
         this.securityAnswer   = securityAnswer;
     }
 
+    // Converts user object to CSV line
     public String toFileString() {
         return userId + "," + username + "," + password + "," +
                 fullName + "," + email + "," + phone + "," +
@@ -40,6 +41,7 @@ public class User {
                 securityQuestion + "," + securityAnswer;
     }
 
+    // Parses CSV line to User object
     public static User fromFileString(String line) {
         String[] p = line.split(",", 10);
         String question = p.length > 8 ? p[8] : "What was the name of your first pet?";
